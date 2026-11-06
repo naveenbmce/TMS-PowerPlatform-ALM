@@ -1,0 +1,35 @@
+name: Deploy Solution from Dev to QA
+
+on:
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
+
+jobs:
+  export-and-deploy:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 1. Export the solution from TMS - Dev as a Managed Solution
+    - name: Export Managed Solution from Dev
+      uses: microsoft/powerplatform-actions/export-solution@v1
+      with:
+        environment-url: ${{ secrets.DEV_ENV_URL }}
+        app-id: ${{ secrets.PP_CLIENT_ID }}
+        client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+        tenant-id: ${{ secrets.PP_TENANT_ID }}
+        solution-name: 'TicketManagementSystem'  # <-- Ensure this matches your exact unique name
+        solution-output-file: 'out/TicketManagementSystem_managed.zip'
+        managed: true
+
+    # 2. Deploy directly into TMS - QA (Unmanaged Basic environment)
+    - name: Import Solution to QA
+      uses: microsoft/powerplatform-actions/import-solution@v1
+      with:
+        environment-url: ${{ secrets.QA_ENV_URL }}
+        app-id: ${{ secrets.PP_CLIENT_ID }}
+        client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+        tenant-id: ${{ secrets.PP_TENANT_ID }}
+        solution-file: 'out/TicketManagementSystem_managed.zip'
+        force-overwrite: true
+        publish-changes: true
