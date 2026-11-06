@@ -1,7 +1,7 @@
 name: Deploy Solution from Dev to QA
 
 on:
-  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
+  workflow_dispatch:
 
 jobs:
   export-and-deploy:
@@ -9,6 +9,10 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+
+    # Install the Power Platform CLI (PAC) on the runner
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
 
     # 1. Export the solution from TMS - Dev as a Managed Solution
     - name: Export Managed Solution from Dev
@@ -18,7 +22,7 @@ jobs:
         app-id: ${{ secrets.PP_CLIENT_ID }}
         client-secret: ${{ secrets.PP_CLIENT_SECRET }}
         tenant-id: ${{ secrets.PP_TENANT_ID }}
-        solution-name: 'TicketManagementSystem'  # <-- Ensure this matches your exact unique name
+        solution-name: 'TicketManagementSystem'
         solution-output-file: 'out/TicketManagementSystem_managed.zip'
         managed: true
 
